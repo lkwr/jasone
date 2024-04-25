@@ -1,11 +1,6 @@
 import { DecodeError } from "./error.ts";
 import { Extension } from "./extension/extension.ts";
-import {
-  dateExtension,
-  mapExtension,
-  setExtension,
-  undefinedExtension,
-} from "./extension/common.ts";
+import * as extensions from "./extension/common.ts";
 import {
   JsonArray,
   JsonObject,
@@ -142,10 +137,12 @@ export class JasoneCodec {
   }
 }
 
-export const Jasone = new JasoneCodec();
-
-// set default extensions
-Jasone.extensions.set(0, undefinedExtension);
-Jasone.extensions.set(1, dateExtension);
-Jasone.extensions.set(2, setExtension);
-Jasone.extensions.set(3, mapExtension);
+export const Jasone = new JasoneCodec(
+  // set default extensions
+  new Map(
+    Object.values(extensions).map<[Tag, Extension]>((extensions) => {
+      if (extensions.tag === undefined) throw new Error("Extensions must have a tag");
+      return [extensions.tag, extensions];
+    })
+  )
+);

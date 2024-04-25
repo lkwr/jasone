@@ -9,6 +9,9 @@
   "test": {
     "include": ["test/**/*.ts"]
   },
+  "bench": {
+    "include": ["benchmark/**/*.ts"]
+  },
   "compilerOptions": {
     "strict": true
   }
