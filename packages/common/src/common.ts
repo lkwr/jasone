@@ -1,4 +1,5 @@
-import type { ExtensionTag, Extension } from "@jasone/core";
+import type { ExtensionTag, Extension } from "@jasone/types";
+
 import { undefinedExtension } from "./extensions/undefined.ts";
 import { bigintExtension } from "./extensions/bigint.ts";
 import { dateExtension } from "./extensions/date.ts";
