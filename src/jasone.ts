@@ -18,9 +18,11 @@ import {
 } from "./types.ts";
 
 export class JasoneCodec {
-  readonly extensions: Map<Tag, Extension> = new Map();
+  readonly extensions: Map<Tag, Extension>;
 
-  constructor() {}
+  constructor(extensions: Map<Tag, Extension> = new Map<Tag, Extension>()) {
+    this.extensions = extensions;
+  }
 
   encode<T>(value: T): Tagged<T> {
     return this.encodeValue(value) ?? [null, null];
@@ -28,6 +30,16 @@ export class JasoneCodec {
 
   decode<T>(value: Tagged<T>): T {
     return this.decodeValue(value) as T;
+  }
+
+  // --
+
+  stringify<T>(value: T): string {
+    return JSON.stringify(this.encode<T>(value));
+  }
+
+  parse<T>(value: string): T {
+    return this.decode<T>(JSON.parse(value));
   }
 
   // --
