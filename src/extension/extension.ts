@@ -6,7 +6,6 @@ export type ExtensionContext = {
   readonly instance: JasoneCodec;
 };
 
-// deno-lint-ignore no-explicit-any
 export type Extension<T = any, V extends JsonValue = any> = {
   /**
    * The optional tag to use for this extension.

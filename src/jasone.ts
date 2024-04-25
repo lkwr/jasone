@@ -11,6 +11,7 @@ import {
   TagValue,
   Tagged,
 } from "./types.ts";
+import { Class, createClassExtension } from "./extension/class.ts";
 
 export class JasoneCodec {
   readonly extensions: Map<Tag, Extension>;
@@ -35,6 +36,22 @@ export class JasoneCodec {
 
   parse<T>(value: string): T {
     return this.decode<T>(JSON.parse(value));
+  }
+
+  // --
+
+  addExtension(tag: Tag, extension: Extension): void {
+    this.extensions.set(tag, extension);
+  }
+
+  addClass(clazz: Class): Tag {
+    const extension = createClassExtension(clazz);
+
+    // this should never happen
+    if (extension.tag === undefined) throw new Error("Failed to get tag from class extension");
+
+    this.addExtension(extension.tag, extension);
+    return extension.tag;
   }
 
   // --

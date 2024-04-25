@@ -13,6 +13,11 @@
   "bench": {
     "include": ["benchmark/**/*.ts"]
   },
+  "lint": {
+    "rules": {
+      "exclude": ["no-explicit-any"]
+    }
+  },
   "compilerOptions": {
     "strict": true
   }
