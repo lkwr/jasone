@@ -10,12 +10,13 @@ import type {
   TagObject,
   TaggedJson,
   Class,
+  JasoneCodec,
 } from "@jasone/types";
 
 import { DecodeError } from "./error.ts";
 import { createClassExtension } from "./utils.ts";
 
-export class JasoneCodec {
+export class JasoneConverter implements JasoneCodec {
   readonly extensions: Map<ExtensionTag, Extension>;
 
   constructor(extensions: Map<ExtensionTag, Extension> = new Map<ExtensionTag, Extension>()) {
@@ -159,4 +160,4 @@ export class JasoneCodec {
   }
 }
 
-export const Jasone = new JasoneCodec(commonExtensionsMap);
+export const Jasone: JasoneConverter = new JasoneConverter(commonExtensionsMap);
