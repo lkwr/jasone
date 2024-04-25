@@ -1,7 +1,4 @@
-import { ExtensionTag } from "../types.ts";
-import { Extension } from "./extension.ts";
-
-export type Class<Args extends any[] = any[], Return = any> = new (...args: Args) => Return;
+import type { ExtensionTag, Extension, Class } from "@jasone/types";
 
 export type CreateClassExtensionOptions = {
   tag?: ExtensionTag;

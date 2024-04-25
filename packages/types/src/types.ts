@@ -14,3 +14,7 @@ export interface TagArray extends Array<TagValue> {}
 //
 
 export type TaggedJson<T = unknown> = [JsonValue, TagValue];
+
+//
+
+export type Class<Args extends any[] = any[], Return = any> = new (...args: Args) => Return;

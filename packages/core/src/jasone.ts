@@ -1,8 +1,7 @@
 import { commonExtensionsMap } from "@jasone/common";
 
-import { DecodeError } from "./error.ts";
-import { Extension } from "./extension/extension.ts";
-import {
+import type {
+  Extension,
   ExtensionTag,
   JsonArray,
   JsonObject,
@@ -10,8 +9,11 @@ import {
   TagArray,
   TagObject,
   TaggedJson,
-} from "./types.ts";
-import { Class, createClassExtension } from "./extension/class.ts";
+  Class,
+} from "@jasone/types";
+
+import { DecodeError } from "./error.ts";
+import { createClassExtension } from "./utils.ts";
 
 export class JasoneCodec {
   readonly extensions: Map<ExtensionTag, Extension>;

@@ -1,5 +1,5 @@
-export { createClassExtension } from "./extension/class.ts";
-export type { Extension, ExtensionContext } from "./extension/extension.ts";
+export * from "@jasone/types";
+
+export { createClassExtension } from "./utils.ts";
 export { DecodeError } from "./error.ts";
 export { JasoneCodec, Jasone } from "./jasone.ts";
-export type * from "./types.ts";

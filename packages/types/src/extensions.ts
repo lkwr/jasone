@@ -1,5 +1,5 @@
-import { JasoneCodec } from "../jasone.ts";
-import { JsonValue, ExtensionTag } from "../types.ts";
+import type { JsonValue, ExtensionTag } from "./types.ts";
+import type { JasoneCodec } from "./jasone.ts";
 
 export type ExtensionContext = {
   readonly tag: ExtensionTag;

@@ -1,4 +1,4 @@
-import type { Extension, TaggedJson } from "@jasone/core";
+import type { Extension, TaggedJson } from "@jasone/types";
 
 export const setExtension: Extension<Set<unknown>, TaggedJson> = {
   tag: 4,

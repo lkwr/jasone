@@ -1,4 +1,4 @@
-import { Extension, TaggedJson } from "@jasone/core";
+import type { Extension, TaggedJson } from "@jasone/types";
 
 export const mapExtension: Extension<Map<unknown, unknown>, TaggedJson> = {
   tag: 5,

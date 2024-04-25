@@ -5,6 +5,7 @@
   "imports": {
     "@jasone/common": "./packages/common/src/main.ts",
     "@jasone/core": "./packages/core/src/main.ts",
+    "@jasone/types": "./packages/types/src/main.ts",
 
     "@std/assert": "jsr:@std/assert@^0.223.0"
   },

@@ -1,4 +1,4 @@
-import type { Extension } from "@jasone/core";
+import type { Extension } from "@jasone/types";
 
 export const bigintExtension: Extension<bigint, string> = {
   tag: 1,

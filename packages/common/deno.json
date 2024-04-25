@@ -1,0 +1,8 @@
+{
+  "name": "@jasone/common",
+  "version": "0.1.0",
+  "exports": "./src/main.ts",
+  "imports": {
+    "@jasone/types": "jsr:@jasone/types@0.1.0"
+  }
+}

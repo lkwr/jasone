@@ -1,4 +1,4 @@
-import type { Extension } from "@jasone/core";
+import type { Extension } from "@jasone/types";
 
 export const regexpExtension: Extension<RegExp, [pattern: string, flags: string]> = {
   tag: 3,
