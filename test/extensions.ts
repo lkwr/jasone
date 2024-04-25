@@ -7,9 +7,17 @@ Deno.test("extension: undefined", () => {
   assertEquals(undefined, processData(undefined, Jasone));
 });
 
+Deno.test("extension: bigint", () => {
+  assertEquals(BigInt(10), processData(BigInt(10), Jasone));
+});
+
 Deno.test("extension: date", () => {
   assertEquals(new Date("2022-01-01"), processData(new Date("2022-01-01"), Jasone));
   assertEquals(new Date(40000), processData(new Date(40000), Jasone));
+});
+
+Deno.test("extension: regexp", () => {
+  assertEquals(/a/g, processData(/a/g, Jasone));
 });
 
 Deno.test("extension: set", () => {
@@ -46,5 +54,20 @@ Deno.test("extension: map", () => {
       ]),
       Jasone
     )
+  );
+});
+
+Deno.test("extension: error", () => {
+  const simpleError = new Error("simple");
+  const complexError = new Error("complex", { cause: simpleError });
+
+  assertEquals(simpleError, processData(simpleError, Jasone));
+  assertEquals(complexError, processData(complexError, Jasone));
+});
+
+Deno.test("extension: url", () => {
+  assertEquals(
+    new URL("https://user:pass@example.com/path"),
+    processData(new URL("https://user:pass@example.com/path"), Jasone)
   );
 });
