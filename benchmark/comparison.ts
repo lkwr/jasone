@@ -1,5 +1,5 @@
 import { SuperJSON } from "npm:superjson";
-import { Jasone } from "jasone";
+import { Jasone } from "@jasone/core";
 
 const simple = { success: true, result: { name: "John" }, error: undefined };
 

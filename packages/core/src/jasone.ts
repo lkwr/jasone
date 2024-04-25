@@ -1,30 +1,30 @@
+import { commonExtensionsMap } from "@jasone/common";
+
 import { DecodeError } from "./error.ts";
 import { Extension } from "./extension/extension.ts";
-import * as extensions from "./extension/common.ts";
 import {
+  ExtensionTag,
   JsonArray,
   JsonObject,
   JsonValue,
-  Tag,
   TagArray,
   TagObject,
-  TagValue,
-  Tagged,
+  TaggedJson,
 } from "./types.ts";
 import { Class, createClassExtension } from "./extension/class.ts";
 
 export class JasoneCodec {
-  readonly extensions: Map<Tag, Extension>;
+  readonly extensions: Map<ExtensionTag, Extension>;
 
-  constructor(extensions: Map<Tag, Extension> = new Map<Tag, Extension>()) {
+  constructor(extensions: Map<ExtensionTag, Extension> = new Map<ExtensionTag, Extension>()) {
     this.extensions = extensions;
   }
 
-  encode<T>(value: T): Tagged<T> {
+  encode<T>(value: T): TaggedJson<T> {
     return this.encodeValue(value) ?? [null, null];
   }
 
-  decode<T>(value: Tagged<T>): T {
+  decode<T>(value: TaggedJson<T>): T {
     return this.decodeValue(value) as T;
   }
 
@@ -40,11 +40,11 @@ export class JasoneCodec {
 
   // --
 
-  addExtension(tag: Tag, extension: Extension): void {
+  addExtension(tag: ExtensionTag, extension: Extension): void {
     this.extensions.set(tag, extension);
   }
 
-  addClass(clazz: Class): Tag {
+  addClass(clazz: Class): ExtensionTag {
     const extension = createClassExtension(clazz);
 
     // this should never happen
@@ -56,7 +56,7 @@ export class JasoneCodec {
 
   // --
 
-  private encodeValue(value: unknown): Tagged<unknown> | null {
+  private encodeValue(value: unknown): TaggedJson<unknown> | null {
     if (
       typeof value === "string" ||
       typeof value === "number" ||
@@ -68,7 +68,10 @@ export class JasoneCodec {
       if (value.constructor === Object) {
         const encodedValues = Object.entries(value)
           .map(([key, innerValue]) => [key, this.encodeValue(innerValue)] as const)
-          .filter(([_key, innerValue]) => innerValue !== null) as [string, Tagged<unknown>][];
+          .filter(([_key, innerValue]) => innerValue !== null) as [
+          string,
+          TaggedJson<unknown>
+        ][];
 
         const [values, tags]: [JsonObject, TagObject] = [{}, {}];
 
@@ -81,7 +84,7 @@ export class JasoneCodec {
       } else if (Array.isArray(value)) {
         const encodedValues = value.map((innerValue) => this.encodeValue(innerValue));
 
-        const [values, tags]: [JsonValue[], TagValue[]] = [[], []];
+        const [values, tags]: [JsonArray, TagArray] = [[], []];
 
         encodedValues.forEach((tagged, index) => {
           if (tagged === null) return;
@@ -101,7 +104,7 @@ export class JasoneCodec {
     }
   }
 
-  private encodeExtension(value: unknown): Tagged<unknown> | null {
+  private encodeExtension(value: unknown): TaggedJson<unknown> | null {
     for (const [tag, extension] of this.extensions) {
       if (extension.check(value, { tag, instance: this }))
         return [extension.encode(value, { tag, instance: this }), tag];
@@ -111,7 +114,7 @@ export class JasoneCodec {
 
   // --
 
-  private decodeValue(tagged: Tagged<unknown>): unknown {
+  private decodeValue(tagged: TaggedJson<unknown>): unknown {
     const [value, tag] = tagged;
 
     if (tag === null) {
@@ -147,19 +150,11 @@ export class JasoneCodec {
     }
   }
 
-  private decodeExtension(value: JsonValue, tag: Tag): unknown {
+  private decodeExtension(value: JsonValue, tag: ExtensionTag): unknown {
     const extension = this.extensions.get(tag);
     if (!extension) return null;
     return extension.decode(value, { tag, instance: this });
   }
 }
 
-export const Jasone = new JasoneCodec(
-  // set default extensions
-  new Map(
-    Object.values(extensions).map<[Tag, Extension]>((extensions) => {
-      if (extensions.tag === undefined) throw new Error("Extensions must have a tag");
-      return [extensions.tag, extensions];
-    })
-  )
-);
+export const Jasone = new JasoneCodec(commonExtensionsMap);

@@ -5,12 +5,12 @@ export interface JsonArray extends Array<JsonValue> {}
 
 //
 
-export type Tag = string | number | null;
+export type ExtensionTag = string | number | null;
 
-export type TagValue = Tag | TagObject | TagArray;
+export type TagValue = ExtensionTag | TagObject | TagArray;
 export interface TagObject extends Record<string, TagValue> {}
 export interface TagArray extends Array<TagValue> {}
 
 //
 
-export type Tagged<T = unknown> = [JsonValue, TagValue];
+export type TaggedJson<T = unknown> = [JsonValue, TagValue];

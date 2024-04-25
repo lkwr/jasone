@@ -1,6 +1,5 @@
 import { assertEquals } from "@std/assert";
-
-import { Jasone } from "../src/mod.ts";
+import { Jasone } from "@jasone/core";
 import { processData } from "./utils.ts";
 
 Deno.test("object: empty", () => {

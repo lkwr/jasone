@@ -1,4 +1,4 @@
-import { Jasone } from "../src/mod.ts";
+import { Jasone } from "../packages/core/src/main.ts";
 
 const simple = "simple text";
 const complex = {

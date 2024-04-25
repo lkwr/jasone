@@ -1,8 +1,8 @@
 import { JasoneCodec } from "../jasone.ts";
-import { JsonValue, Tag } from "../types.ts";
+import { JsonValue, ExtensionTag } from "../types.ts";
 
 export type ExtensionContext = {
-  readonly tag: Tag;
+  readonly tag: ExtensionTag;
   readonly instance: JasoneCodec;
 };
 
@@ -12,7 +12,7 @@ export type Extension<T = any, V extends JsonValue = any> = {
    *
    * It is optional because the tag will be defined at the registration.
    */
-  tag?: Tag;
+  tag?: ExtensionTag;
 
   /**
    * A function that checks if a value is of the type this extension can encode.
