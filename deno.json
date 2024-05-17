@@ -1,7 +1,4 @@
 {
-  "tasks": {
-    "build": "deno run -A build.ts"
-  },
   "imports": {
     "@jasone/common": "./packages/common/src/main.ts",
     "@jasone/core": "./packages/core/src/main.ts",
