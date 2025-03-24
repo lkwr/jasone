@@ -1,0 +1,17 @@
+{
+  "name": "jasone",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "bun test",
+    "build": "bun run build.ts",
+    "check": "biome check",
+    "format": "biome check --fix"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/bun": "^1.2.6",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.2"
+  }
+}
