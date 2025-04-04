@@ -31,13 +31,17 @@ describe("encode", () => {
 
     expect(
       jasone.decode<unknown>({
-        $: null,
-        "@": {
-          $: 1,
-          a: 2,
-        },
+        $: [1],
+        a: 2,
       }),
     ).toEqual({ $: 1, a: 2 });
+
+    expect(
+      jasone.decode<unknown>({
+        $: [[1]],
+        a: 2,
+      }),
+    ).toEqual({ $: [1], a: 2 });
   });
 
   test("custom types", () => {
@@ -46,8 +50,8 @@ describe("encode", () => {
     jasone.register({
       target: Date,
       typeId: 0,
-      encode: (date) => date.getTime(),
-      decode: (value) => new Date(value),
+      encode: (date) => ({ timestamp: date.getTime() }),
+      decode: ({ timestamp }) => new Date(timestamp),
     });
 
     jasone.register({
@@ -57,10 +61,10 @@ describe("encode", () => {
       decode: () => undefined,
     });
 
-    expect(jasone.decode<unknown>({ $: 0, "@": 0 })).toEqual(new Date(0));
+    expect(jasone.decode<unknown>({ $: 0, timestamp: 0 })).toEqual(new Date(0));
     expect(jasone.decode<unknown>({ $: 1 })).toEqual(undefined);
     expect(
-      jasone.decode<unknown>([1, { $: 0, "@": 0 }, "2", { $: 1 }]),
+      jasone.decode<unknown>([1, { $: 0, timestamp: 0 }, "2", { $: 1 }]),
     ).toEqual([1, new Date(0), "2", undefined]);
     expect(() =>
       jasone.decode<unknown>({ $: 123, error: true }),

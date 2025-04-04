@@ -1,22 +1,21 @@
-import type { ClassLike } from "../dist/index.d.cts";
 import type { TypeTransformer } from "./transformer.ts";
 import type {
+  ClassLike,
   JsonValue,
   MatchesFn,
   TypeDecoder,
   TypeEncoder,
   TypeId,
 } from "./types.ts";
+import * as types from "./types/index.ts";
 
 export type JasoneOptions = {
   typeIdentifier?: string;
-  valueIdentifier?: string;
-  types?: TypeTransformer<unknown, Record<string, JsonValue>>[];
+  types?: TypeTransformer<any, any>[];
 };
 
 export class Jasone {
   #typeIdentifier: string;
-  #valueIdentifier: string;
 
   #decoder: Map<TypeId, TypeDecoder> = new Map();
 
@@ -32,11 +31,10 @@ export class Jasone {
 
   constructor(options: JasoneOptions = {}) {
     this.#typeIdentifier = options.typeIdentifier ?? "$";
-    this.#valueIdentifier = options.valueIdentifier ?? "@";
     for (const type of options.types ?? []) this.register(type);
   }
 
-  register<TType, TJson extends JsonValue>(
+  register<TType, TJson extends Record<string, JsonValue>>(
     type: TypeTransformer<TType, TJson>,
   ) {
     this.#decoder.set(type.typeId, type.decode as TypeDecoder);
@@ -78,12 +76,11 @@ export class Jasone {
             ]),
           );
 
-          // in case a type identifier is present, we need to escape the object
+          // in case a type identifier is present, we need to escape it
           if (this.#typeIdentifier in result) {
-            return {
-              [this.#typeIdentifier]: null,
-              [this.#valueIdentifier]: result,
-            };
+            result[this.#typeIdentifier] = [
+              this.encode(result[this.#typeIdentifier]),
+            ];
           }
 
           return result;
@@ -103,18 +100,7 @@ export class Jasone {
 
     const encoded = encoder.encode(value, this.encode.bind(this));
 
-    if (
-      typeof encoded === "object" &&
-      encoded !== null &&
-      !Array.isArray(encoded)
-    ) {
-      return { [this.#typeIdentifier]: encoder.typeId, ...encoded };
-    }
-
-    return {
-      [this.#typeIdentifier]: encoder.typeId,
-      [this.#valueIdentifier]: encoded,
-    };
+    return { [this.#typeIdentifier]: encoder.typeId, ...encoded };
   }
 
   decode<T = unknown>(value: JsonValue): T {
@@ -141,22 +127,22 @@ export class Jasone {
           !Array.isArray(value) &&
           !shouldEscape
         ) {
-          const typeId = value[this.#typeIdentifier] as TypeId | null;
+          const typeId = value[this.#typeIdentifier] as TypeId | [JsonValue];
 
-          // if the type identifier is null, its an escaped object
-          if (typeId === null) {
-            if (!(this.#valueIdentifier in value))
+          // if the type identifier is an array, its an escaped object
+          if (Array.isArray(typeId)) {
+            if (typeId.length !== 1)
               throw new Error(
-                "Illegal value received. Missing value indentifier",
-                {
-                  cause: value,
-                },
+                "Illegal value received. Escaped type identifiers must have exactly one element.",
+                { cause: value },
               );
 
-            return this.#decode(
-              value[this.#valueIdentifier] as JsonValue,
-              true,
-            );
+            const [escaped] = typeId;
+            const cloned = { ...value };
+
+            cloned[this.#typeIdentifier] = escaped;
+
+            return this.#decode(cloned, true);
           }
 
           const decoder = this.#decoder.get(typeId);
@@ -164,12 +150,7 @@ export class Jasone {
             throw new Error(`No decoder found for type id: ${typeId}`, {
               cause: value,
             });
-          return decoder(
-            (this.#valueIdentifier in value
-              ? value[this.#valueIdentifier]
-              : value) as JsonValue,
-            this.decode.bind(this),
-          );
+          return decoder(value, this.decode.bind(this));
         }
 
         // raw object
@@ -188,4 +169,18 @@ export class Jasone {
       cause: value,
     });
   }
+
+  // -----------------------------------------------------------------------------
+  // -                      Static Methods for convenience                       -
+  // -----------------------------------------------------------------------------
+
+  static default = new Jasone({
+    types: Object.values(types),
+  });
+
+  static register = Jasone.default.register.bind(Jasone.default);
+
+  static encode = Jasone.default.encode.bind(Jasone.default);
+
+  static decode = Jasone.default.decode.bind(Jasone.default);
 }

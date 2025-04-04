@@ -1,4 +1,4 @@
-import { describe, test } from "bun:test";
+import { test } from "bun:test";
 import { Jasone } from "../../src/jasone.ts";
 import { dateType } from "../../src/types/date.ts";
 import { expectEncodeDecode } from "./util.ts";

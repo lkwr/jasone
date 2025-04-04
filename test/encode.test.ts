@@ -30,11 +30,13 @@ describe("encode", () => {
     const jasone = new Jasone();
 
     expect(jasone.encode({ $: 1, a: 2 })).toEqual({
-      $: null,
-      "@": {
-        $: 1,
-        a: 2,
-      },
+      $: [1],
+      a: 2,
+    });
+
+    expect(jasone.encode({ $: [1], a: 2 })).toEqual({
+      $: [[1]],
+      a: 2,
     });
   });
 
@@ -44,8 +46,8 @@ describe("encode", () => {
     jasone.register({
       target: Date,
       typeId: 0,
-      encode: (date) => date.getTime(),
-      decode: (value) => new Date(value),
+      encode: (date) => ({ timestamp: date.getTime() }),
+      decode: ({ timestamp }) => new Date(timestamp),
     });
 
     jasone.register({
@@ -55,11 +57,14 @@ describe("encode", () => {
       decode: () => undefined,
     });
 
-    expect(jasone.encode(new Date(42_000))).toEqual({ $: 0, "@": 42_000 });
+    expect(jasone.encode(new Date(42_000))).toEqual({
+      $: 0,
+      timestamp: 42_000,
+    });
     expect(jasone.encode(undefined)).toEqual({ $: 1 });
     expect(jasone.encode([1, new Date(42_000), "2", undefined])).toEqual([
       1,
-      { $: 0, "@": 42_000 },
+      { $: 0, timestamp: 42_000 },
       "2",
       { $: 1 },
     ]);

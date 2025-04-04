@@ -16,7 +16,7 @@ export type TypeMatcher<TType> =
 
 export type TypeTransformer<
   TType,
-  TJson extends JsonValue,
+  TJson extends Record<string, JsonValue> = Record<string, JsonValue>,
 > = TypeMatcher<TType> & {
   typeId: string | number;
 
@@ -24,7 +24,7 @@ export type TypeTransformer<
   decode: TypeDecoder<TType, TJson>;
 };
 
-export const createType = <TType, TJson extends JsonValue>(
+export const createType = <TType, TJson extends Record<string, JsonValue>>(
   transformer: TypeTransformer<TType, TJson>,
 ): TypeTransformer<TType, TJson> => {
   return transformer;

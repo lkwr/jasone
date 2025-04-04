@@ -10,12 +10,12 @@ export type TypeId = string | number;
 
 export type TypeEncoder<
   TType = unknown,
-  TJson extends JsonValue = JsonValue,
+  TJson extends Record<string, JsonValue> = Record<string, JsonValue>,
 > = (value: TType, encode: <T = unknown>(value: T) => JsonValue) => TJson;
 
 export type TypeDecoder<
   TType = unknown,
-  TJson extends JsonValue = JsonValue,
+  TJson extends Record<string, JsonValue> = Record<string, JsonValue>,
 > = (value: TJson, decode: <T = unknown>(value: JsonValue) => T) => TType;
 
 export type MatchesFn<TType = unknown> = (value: unknown) => value is TType;
