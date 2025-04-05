@@ -42,7 +42,7 @@ console.log(encoded); // {"myDate":{"$":1,"timestamp":1743856200000}}
 ### Decoding
 
 ```ts
-import { decode } from "cborkit/decoder";
+import { decode } from "jasone";
 
 const encoded = '{"myDate":{"$":1,"timestamp":1743856200000}}';
 const decoded = Jasone.decode(JSON.parse(encoded));
