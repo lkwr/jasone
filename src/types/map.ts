@@ -1,7 +1,7 @@
 import { createType } from "../transformer.ts";
 
 export const mapType = createType({
-  matches: (value) => value instanceof Map,
+  target: Map,
   typeId: 5,
   encode: (map, encode) => ({
     map: Array.from(

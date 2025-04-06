@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { $ } from "bun";
 import { Jasone } from "../src/jasone.ts";
 
 describe("encode", () => {
@@ -69,5 +68,50 @@ describe("encode", () => {
       { $: 1 },
     ]);
     expect(() => jasone.encode(new Map())).toThrowError();
+  });
+
+  test("with default types", () => {
+    expect(
+      Jasone.encode([
+        {
+          num: 1,
+          undefined: undefined,
+          date: new Date(0),
+          bigint: 1000n,
+          regexp: /[a-z]+/gi,
+          set: new Set([1]),
+          map: new Map([[1, 2]]),
+          url: new URL("https://example.com/"),
+          nested: new Set([
+            new Set([new Map([[new Date(1000), "my key is a date"]])]),
+          ]),
+        },
+      ]),
+    ).toEqual([
+      {
+        num: 1,
+        undefined: { $: 0 },
+        date: { $: 1, timestamp: 0 },
+        bigint: { $: 2, bigint: "1000" },
+        regexp: { $: 3, source: "[a-z]+", flags: "gi" },
+        set: { $: 4, set: [1] },
+        map: { $: 5, map: [[1, 2]] },
+        url: { $: 6, url: "https://example.com/" },
+        nested: {
+          $: 4,
+          set: [
+            {
+              $: 4,
+              set: [
+                {
+                  $: 5,
+                  map: [[{ $: 1, timestamp: 1000 }, "my key is a date"]],
+                },
+              ],
+            },
+          ],
+        },
+      },
+    ]);
   });
 });

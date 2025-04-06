@@ -1,7 +1,7 @@
 import { createType } from "../transformer.ts";
 
 export const urlType = createType({
-  matches: (value) => value instanceof URL,
+  target: URL,
   typeId: 6,
   encode: (url) => ({
     url: url.toString(),

@@ -44,7 +44,7 @@ export type TypeDecoder<
 
 export type MatchesFn<TType = unknown> = (value: unknown) => value is TType;
 
-export type ClassLike<TInstance> = new (...args: unknown[]) => TInstance;
+export type ClassLike<TInstance> = new <T>(...args: any[]) => TInstance;
 
 const typeOf = typeof undefined;
 export type TypeOf = typeof typeOf;
