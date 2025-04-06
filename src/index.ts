@@ -1,3 +1,5 @@
+export * from "./types/index.ts";
+
 export { Jasone, type JasoneOptions } from "./jasone.ts";
 
 export {

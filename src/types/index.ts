@@ -1,20 +1,38 @@
-// TypeId: 0 (undefined)
-export * from "./undefined.ts";
+import type { TypeTransformer } from "../transformer.ts";
+import { bigIntType } from "./bigint.ts";
+import { dateType } from "./date.ts";
+import { mapType } from "./map.ts";
+import { regExpType } from "./regexp.ts";
+import { setType } from "./set.ts";
+import { undefinedType } from "./undefined.ts";
+import { urlType } from "./url.ts";
 
-// TypeId: 1 (Date)
-export * from "./date.ts";
+export {
+  // TypeId: 0 (undefined)
+  undefinedType,
+  // TypeId: 1 (Date)
+  dateType,
+  // TypeId: 2 (BigInt)
+  bigIntType,
+  // TypeId: 3 (RegExp)
+  regExpType,
+  // TypeId: 4 (Set)
+  setType,
+  // TypeId: 5 (Map)
+  mapType,
+  // TypeId: 6 (URL)
+  urlType,
+};
 
-// TypeId: 2 (BigInt)
-export * from "./bigint.ts";
-
-// TypeId: 3 (RegExp)
-export * from "./regexp.ts";
-
-// TypeId: 4 (Set)
-export * from "./set.ts";
-
-// TypeId: 5 (Map)
-export * from "./map.ts";
-
-// TypeId: 6 (URL)
-export * from "./url.ts";
+/**
+ * The default types that are used by the default Jasone instance.
+ */
+export const defaultTypes: TypeTransformer<any, any>[] = [
+  undefinedType,
+  dateType,
+  bigIntType,
+  regExpType,
+  setType,
+  mapType,
+  urlType,
+];
