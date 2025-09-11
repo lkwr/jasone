@@ -1,11 +1,11 @@
 import { test } from "bun:test";
 import { Jasone } from "../../src/jasone.ts";
-import { dateType } from "../../src/types/date.ts";
+import { dateTransformer } from "../../src/transformers/date.ts";
 import { expectEncodeDecode } from "./util.ts";
 
 const jasone = new Jasone();
 
-jasone.register(dateType);
+jasone.register(dateTransformer);
 
 test("type: Date", () => {
   expectEncodeDecode(jasone, new Date(0));

@@ -1,11 +1,11 @@
 import { test } from "bun:test";
 import { Jasone } from "../../src/jasone.ts";
-import { mapType } from "../../src/types/map.ts";
+import { mapTransformer } from "../../src/transformers/map.ts";
 import { expectEncodeDecode } from "./util.ts";
 
 const jasone = new Jasone();
 
-jasone.register(mapType);
+jasone.register(mapTransformer);
 
 test("type: Map", () => {
   expectEncodeDecode(

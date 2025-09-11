@@ -46,25 +46,40 @@ describe("encode", () => {
   test("custom types", () => {
     const jasone = new Jasone();
 
-    jasone.register({
-      target: Date,
-      typeId: 0,
-      encode: (date) => ({ timestamp: date.getTime() }),
-      decode: ({ timestamp }) => new Date(timestamp),
+    jasone.register<Date, { iso: string }>({
+      encoder: {
+        filter: { class: Date },
+        handler: ({ value }) => [1, { iso: value.toISOString() }],
+      },
+      decoder: {
+        filter: 1,
+        handler: ({ value }) => new Date(value.iso),
+      },
     });
 
     jasone.register({
-      matches: (value) => value === undefined,
-      typeId: 1,
-      encode: () => ({}),
-      decode: () => undefined,
+      encoder: {
+        filter: { undefined: true },
+        handler: () => [0, {}],
+      },
+      decoder: {
+        filter: 0,
+        handler: () => undefined,
+      },
     });
 
-    expect(jasone.decode<unknown>({ $: 0, timestamp: 0 })).toEqual(new Date(0));
-    expect(jasone.decode<unknown>({ $: 1 })).toEqual(undefined);
     expect(
-      jasone.decode<unknown>([1, { $: 0, timestamp: 0 }, "2", { $: 1 }]),
-    ).toEqual([1, new Date(0), "2", undefined]);
+      jasone.decode<unknown>({ $: 1, iso: "1970-01-01T00:00:00.000Z" }),
+    ).toEqual(new Date("1970-01-01T00:00:00.000Z"));
+    expect(jasone.decode<unknown>({ $: 0 })).toEqual(undefined);
+    expect(
+      jasone.decode<unknown>([
+        1,
+        { $: 1, iso: "1970-01-01T00:00:00.000Z" },
+        "2",
+        { $: 0 },
+      ]),
+    ).toEqual([1, new Date("1970-01-01T00:00:00.000Z"), "2", undefined]);
     expect(() =>
       jasone.decode<unknown>({ $: 123, error: true }),
     ).toThrowError();
@@ -76,21 +91,26 @@ describe("encode", () => {
         {
           num: 1,
           undefined: { $: 0 },
-          date: { $: 1, timestamp: 0 },
+          date: { $: 1, iso: "1970-01-01T00:00:00.000Z" },
           bigint: { $: 2, bigint: "1000" },
           regexp: { $: 3, source: "[a-z]+", flags: "gi" },
-          set: { $: 4, set: [1] },
-          map: { $: 5, map: [[1, 2]] },
+          set: { $: 4, values: [1] },
+          map: { $: 5, entries: [[1, 2]] },
           url: { $: 6, url: "https://example.com/" },
           nested: {
             $: 4,
-            set: [
+            values: [
               {
                 $: 4,
-                set: [
+                values: [
                   {
                     $: 5,
-                    map: [[{ $: 1, timestamp: 1000 }, "my key is a date"]],
+                    entries: [
+                      [
+                        { $: 1, iso: "2000-01-01T00:00:00.000Z" },
+                        "my key is a date",
+                      ],
+                    ],
                   },
                 ],
               },
@@ -102,14 +122,18 @@ describe("encode", () => {
       {
         num: 1,
         undefined: undefined,
-        date: new Date(0),
+        date: new Date("1970-01-01T00:00:00.000Z"),
         bigint: 1000n,
         regexp: /[a-z]+/gi,
         set: new Set([1]),
         map: new Map([[1, 2]]),
         url: new URL("https://example.com/"),
         nested: new Set([
-          new Set([new Map([[new Date(1000), "my key is a date"]])]),
+          new Set([
+            new Map([
+              [new Date("2000-01-01T00:00:00.000Z"), "my key is a date"],
+            ]),
+          ]),
         ]),
       },
     ]);
