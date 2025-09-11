@@ -1,14 +1,14 @@
-import { build } from "tsup";
+import { build } from "tsdown";
 
 import packageJson from "./package.json" with { type: "json" };
 
 await build({
   entry: [`${import.meta.dirname}/src/index.ts`],
   outDir: `${import.meta.dirname}/dist`,
-  format: ["esm", "cjs"],
+  format: "esm",
   dts: true,
   clean: true,
-  minify: true,
+  minify: { mangle: false },
 });
 
 const distPackageJson = {
@@ -18,15 +18,13 @@ const distPackageJson = {
   author: packageJson.author,
   license: packageJson.license,
 
-  main: "./index.cjs",
   module: "./index.js",
   types: "./index.d.ts",
 
   exports: {
     ".": {
-      import: "./index.js",
-      require: "./index.cjs",
       types: "./index.d.ts",
+      default: "./index.js",
     },
   },
 
