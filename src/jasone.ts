@@ -45,7 +45,7 @@ export type JasoneOptions = {
    * const jasone = new Jasone({ types: [myCustomTransformer] });
    * ```
    */
-  types?: Transformer<any, any>[];
+  types?: Transformer<any, any, any>[];
 };
 
 /**
