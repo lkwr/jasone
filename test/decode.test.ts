@@ -138,4 +138,52 @@ describe("encode", () => {
       },
     ]);
   });
+
+  test("with blobs using context", async () => {
+    const jasone = new Jasone({ types: [] });
+
+    jasone.register<Blob, { id: number }, { blobs?: Blob[] }>({
+      decoder: {
+        filter: "Blob",
+        handler: ({ value, context }) => {
+          if (!context.blobs) throw new Error("No blobs in context");
+          const blob = context.blobs[value.id];
+          if (!blob) throw new Error(`No blob at id ${value.id} in context`);
+          return blob;
+        },
+      },
+    });
+
+    const ctx = {
+      blobs: [
+        new Blob(["hello"], { type: "text/plain" }),
+        new Blob(['"world"'], { type: "application/json" }),
+      ],
+    };
+    const encoded = {
+      blob1: { $: "Blob", id: 0 },
+      blob2: { $: "Blob", id: 1 },
+    };
+
+    const decoded = jasone.decode<any>(encoded, ctx);
+
+    expect(decoded).toBeTypeOf("object");
+
+    expect(decoded.blob1).toBeInstanceOf(Blob);
+    expect(await decoded.blob1.text()).toEqual("hello");
+    expect(decoded.blob1.size).toEqual(ctx.blobs[0]?.size);
+    expect(decoded.blob1.type).toEqual(ctx.blobs[0]?.type);
+
+    expect(decoded.blob2).toBeInstanceOf(Blob);
+    expect(await decoded.blob2.text()).toEqual('"world"');
+    expect(decoded.blob2.size).toEqual(ctx.blobs[1]?.size);
+    expect(decoded.blob2.type).toEqual(ctx.blobs[1]?.type);
+
+    expect(() => jasone.decode({ blob1: { $: "Blob", id: 0 } })).toThrow(
+      "No blobs in context",
+    );
+    expect(() => jasone.decode({ blob3: { $: "Blob", id: 2 } }, ctx)).toThrow(
+      "No blob at id 2 in context",
+    );
+  });
 });

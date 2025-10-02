@@ -8,6 +8,7 @@ import {
 import { defaultTransformers } from "./transformers/index.ts";
 import {
   type ClassLike,
+  type Context,
   type Decoder,
   type Encoder,
   type JsonValue,
@@ -169,8 +170,8 @@ export class Jasone {
    *
    * @param type The type to register.
    */
-  register<TType, TJson extends JsonValue>(
-    transformer: Transformer<TType, TJson>,
+  register<TType, TJson extends JsonValue, TContext extends Context = Context>(
+    transformer: Transformer<TType, TJson, TContext>,
   ) {
     if (transformer.encoder)
       this.#registerEncoder(transformer.encoder as Encoder);
@@ -184,7 +185,7 @@ export class Jasone {
    * @param value The value to encode.
    * @returns A JSON-compatible Jasone encoded value.
    */
-  encode(value: unknown): JsonValue {
+  encode(value: unknown, context: Context = {}): JsonValue {
     const type = typeof value;
 
     switch (type) {
@@ -199,13 +200,13 @@ export class Jasone {
 
         // array
         if (Array.isArray(value))
-          return value.map((entry) => this.encode(entry));
+          return value.map((entry) => this.encode(entry, context));
 
         // raw object
         if (Object.getPrototypeOf(value) === Object.prototype) {
           const encodedObject = Object.fromEntries(
             Object.entries(value as Record<string, JsonValue>).map(
-              ([key, inner]) => [key, this.encode(inner)],
+              ([key, inner]) => [key, this.encode(inner, context)],
             ),
           );
 
@@ -225,19 +226,21 @@ export class Jasone {
     if (type === "object")
       encoder ??= this.#classEncoder
         .get((value as object).constructor as ClassLike<unknown>)
-        ?.find((inner) => matchEncoderFilters(inner.filter, value));
+        ?.find((inner) =>
+          matchEncoderFilters(inner.filter, value, this, context),
+        );
 
     encoder ??= this.#customEncoder[type].find((inner) =>
-      matchEncoderFilters(inner.filter, value),
+      matchEncoderFilters(inner.filter, value, this, context),
     );
 
     encoder ??= this.#anyEncoder.find((inner) =>
-      matchEncoderFilters(inner.filter, value),
+      matchEncoderFilters(inner.filter, value, this, context),
     );
 
     if (!encoder) throw new UnhandledValueError(value);
 
-    const [typeId, result] = encoder.handler({ value, jasone: this });
+    const [typeId, result] = encoder.handler({ value, jasone: this, context });
 
     if (typeId !== null && this.#typeIdentifier in result)
       throw new IllegalEncoderResultError(result);
@@ -253,11 +256,15 @@ export class Jasone {
    * @param value The Jasone encoded value to decode.
    * @returns The decoded value.
    */
-  decode<T = unknown>(value: JsonValue): T {
-    return this.#decode(value) as T;
+  decode<T = unknown>(value: JsonValue, context: Context = {}): T {
+    return this.#decode(value, context) as T;
   }
 
-  #decode(value: JsonValue, ignoreTypeIdentifier = false): unknown {
+  #decode(
+    value: JsonValue,
+    context: Context,
+    ignoreTypeIdentifier = false,
+  ): unknown {
     switch (typeof value) {
       case "boolean":
       case "number":
@@ -269,7 +276,7 @@ export class Jasone {
 
         // raw array
         if (Array.isArray(value))
-          return value.map((inner) => this.#decode(inner));
+          return value.map((inner) => this.#decode(inner, context));
 
         // typed objects
         if (
@@ -286,7 +293,7 @@ export class Jasone {
 
             cloned[this.#typeIdentifier] = escaped;
 
-            return this.#decode(cloned, true);
+            return this.#decode(cloned, context, true);
           }
 
           let decoder: Decoder | undefined;
@@ -294,12 +301,12 @@ export class Jasone {
           decoder ??= this.#typeIdDecoder.get(typeId);
 
           decoder ??= this.#anyDecoder.find((entry) =>
-            matchDecoderFilters(entry.filter, value, typeId),
+            matchDecoderFilters(entry.filter, value, typeId, this, context),
           );
 
           if (!decoder) throw new UnknownTypeIdError(typeId, value);
 
-          return decoder.handler({ typeId, value, jasone: this });
+          return decoder.handler({ typeId, value, jasone: this, context });
         }
 
         // raw object
@@ -307,7 +314,7 @@ export class Jasone {
           return Object.fromEntries(
             Object.entries(value).map(([key, inner]) => [
               key,
-              this.#decode(inner),
+              this.#decode(inner, context),
             ]),
           );
 
@@ -320,15 +327,15 @@ export class Jasone {
   /**
    * Alias for `encode`.
    */
-  serialize(value: unknown): JsonValue {
-    return this.encode(value);
+  serialize(value: unknown, context: Context = {}): JsonValue {
+    return this.encode(value, context);
   }
 
   /**
    * Alias for `decode`.
    */
-  deserialize<T = unknown>(value: JsonValue): T {
-    return this.decode<T>(value);
+  deserialize<T = unknown>(value: JsonValue, context: Context = {}): T {
+    return this.decode<T>(value, context);
   }
 
   /**
@@ -340,8 +347,8 @@ export class Jasone {
    * JSON.stringify(this.encode(value));
    * ```
    */
-  stringify(value: unknown): string {
-    return JSON.stringify(this.encode(value));
+  stringify(value: unknown, context: Context = {}): string {
+    return JSON.stringify(this.encode(value, context));
   }
 
   /**
@@ -353,8 +360,8 @@ export class Jasone {
    * this.decode(JSON.parse(value));
    * ```
    */
-  parse<T = unknown>(value: string): T {
-    return this.decode<T>(JSON.parse(value));
+  parse<T = unknown>(value: string, context: Context = {}): T {
+    return this.decode<T>(JSON.parse(value), context);
   }
 
   // -----------------------------------------------------------------------------

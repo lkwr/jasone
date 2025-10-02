@@ -34,20 +34,27 @@ export type NonJsonType = {
   undefined: undefined;
 };
 
-export type EncodeFilter<TType> = {
+export type Context = Record<string, unknown>;
+
+export type EncodeFilter<TType, TContext extends Context = Context> = {
   class?: ClassLike<TType>;
-  any?: (value: unknown) => boolean;
+  any?: (options: EncodeOptions<unknown, TContext>) => boolean;
 } & {
-  [Key in keyof NonJsonType]?: ((value: NonJsonType[Key]) => boolean) | boolean;
+  [Key in keyof NonJsonType]?:
+    | ((options: EncodeOptions<NonJsonType[Key], TContext>) => boolean)
+    | boolean;
 };
 
-export type EncodeHandler<TType, TJson extends JsonValue> = (
-  ctx: EncodeContext<TType>,
-) => EncodeResult<TJson>;
+export type EncodeHandler<
+  TType,
+  TJson extends JsonValue,
+  TContext extends Context = Context,
+> = (ctx: EncodeOptions<TType, TContext>) => EncodeResult<TJson>;
 
-export type EncodeContext<TType> = {
+export type EncodeOptions<TType, TContext extends Context = Context> = {
   value: TType;
   jasone: Jasone;
+  context: TContext;
 };
 
 export type EncodeResult<TJson extends JsonValue> = TJson extends Record<
@@ -57,39 +64,51 @@ export type EncodeResult<TJson extends JsonValue> = TJson extends Record<
   ? [TypeId, TJson] | [null, JsonValue]
   : [null, JsonValue];
 
-export type Encoder<TType = unknown, TJson extends JsonValue = JsonValue> = {
-  filter?: EncodeFilter<TType> | EncodeFilter<TType>[];
-  handler: EncodeHandler<TType, TJson>;
+export type Encoder<
+  TType = unknown,
+  TJson extends JsonValue = JsonValue,
+  TContext extends Context = Context,
+> = {
+  filter?: EncodeFilter<TType, TContext> | EncodeFilter<TType, TContext>[];
+  handler: EncodeHandler<TType, TJson, TContext>;
 };
 
-export type DecodeFilter =
+export type DecodeFilter<TContext extends Context = Context> =
   | TypeId
-  | ((typeId: TypeId, value: Record<string, JsonValue>) => boolean);
+  | ((options: DecodeOptions<Record<string, JsonValue>, TContext>) => boolean);
 
-export type DecodeContext<TJson extends Record<string, JsonValue>> = {
+export type DecodeOptions<
+  TJson extends Record<string, JsonValue>,
+  TContext extends Context = Context,
+> = {
   value: TJson;
   typeId: TypeId;
   jasone: Jasone;
+  context: TContext;
 };
 
-export type DecodeHandler<TType, TJson extends Record<string, JsonValue>> = (
-  ctx: DecodeContext<TJson>,
-) => TType;
+export type DecodeHandler<
+  TType,
+  TJson extends Record<string, JsonValue>,
+  TContext extends Context = Context,
+> = (ctx: DecodeOptions<TJson, TContext>) => TType;
 
 export type Decoder<
   TType = unknown,
   TJson extends Record<string, JsonValue> = Record<string, JsonValue>,
+  TContext extends Context = Context,
 > = {
-  filter?: DecodeFilter | DecodeFilter[];
-  handler: DecodeHandler<TType, TJson>;
+  filter?: DecodeFilter<TContext> | DecodeFilter<TContext>[];
+  handler: DecodeHandler<TType, TJson, TContext>;
 };
 
 export type Transformer<
   TType = unknown,
   TJson extends JsonValue = JsonValue,
+  TContext extends Context = Context,
 > = {
-  encoder?: Encoder<TType, TJson>;
+  encoder?: Encoder<TType, TJson, TContext>;
   decoder?: TJson extends Record<string, JsonValue>
-    ? Decoder<TType, TJson>
+    ? Decoder<TType, TJson, TContext>
     : never;
 };

@@ -6,7 +6,7 @@ export const mapTransformer: Transformer<
   { entries: [key: JsonValue, value: JsonValue][] }
 > = {
   encoder: {
-    filter: { class: Map, object: (obj) => obj instanceof Map },
+    filter: { class: Map, object: ({ value }) => value instanceof Map },
     handler: ({ value, jasone }) => [
       TypeIdRegistry.Map,
       {

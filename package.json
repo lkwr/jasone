@@ -1,6 +1,6 @@
 {
   "name": "jasone",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-beta.1",
   "type": "module",
   "author": "Lukas Heizmann <lukas@heizmann.dev>",
   "license": "MIT",
@@ -11,10 +11,10 @@
     "format": "biome check --fix"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.2.4",
-    "@types/bun": "^1.2.21",
-    "tsdown": "^0.15.0",
-    "typescript": "^5.9.2"
+    "@biomejs/biome": "^2.2.5",
+    "@types/bun": "^1.2.23",
+    "tsdown": "^0.15.6",
+    "typescript": "^5.9.3"
   },
   "repository": {
     "type": "git",

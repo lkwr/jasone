@@ -6,7 +6,7 @@ export const setTransformer: Transformer<
   { values: JsonValue[] }
 > = {
   encoder: {
-    filter: { class: Set, object: (obj) => obj instanceof Set },
+    filter: { class: Set, object: ({ value }) => value instanceof Set },
     handler: ({ value, jasone }) => [
       TypeIdRegistry.Set,
       {

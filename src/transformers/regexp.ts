@@ -6,7 +6,7 @@ export const regExpTransformer: Transformer<
   { source: string; flags: string }
 > = {
   encoder: {
-    filter: { class: RegExp, object: (obj) => obj instanceof RegExp },
+    filter: { class: RegExp, object: ({ value }) => value instanceof RegExp },
     handler: ({ value }) => [
       TypeIdRegistry.RegExp,
       { source: value.source, flags: value.flags },

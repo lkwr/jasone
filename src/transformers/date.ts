@@ -3,7 +3,7 @@ import type { Transformer } from "../types.ts";
 
 export const dateTransformer: Transformer<Date, { iso: string }> = {
   encoder: {
-    filter: { class: Date, object: (obj) => obj instanceof Date },
+    filter: { class: Date, object: ({ value }) => value instanceof Date },
     handler: ({ value }) => [TypeIdRegistry.Date, { iso: value.toISOString() }],
   },
   decoder: {

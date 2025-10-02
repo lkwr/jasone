@@ -3,7 +3,7 @@ import type { Transformer } from "../types.ts";
 
 export const urlTransformer: Transformer<URL, { url: string }> = {
   encoder: {
-    filter: { class: URL, object: (obj) => obj instanceof URL },
+    filter: { class: URL, object: ({ value }) => value instanceof URL },
     handler: ({ value }) => [TypeIdRegistry.URL, { url: value.toString() }],
   },
   decoder: {

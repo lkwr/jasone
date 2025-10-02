@@ -131,4 +131,41 @@ describe("encode", () => {
       },
     ]);
   });
+
+  test("with blobs using context", async () => {
+    const jasone = new Jasone({ types: [] });
+
+    jasone.register<Blob, { id: number }, { blobs?: Blob[] }>({
+      encoder: {
+        filter: { object: ({ value }) => value instanceof Blob },
+        handler: ({ value, context }) => {
+          context.blobs ??= [];
+          const id = context.blobs.push(value) - 1;
+
+          return ["Blob", { id }];
+        },
+      },
+    });
+
+    const ctx = { blobs: [] as Blob[] };
+    const data = {
+      blob1: new Blob(["hello"], { type: "text/plain" }),
+      blob2: new Blob(['"world"'], { type: "application/json" }),
+    };
+
+    const encoded = jasone.encode(data, ctx);
+
+    expect(encoded).toEqual({
+      blob1: { $: "Blob", id: 0 },
+      blob2: { $: "Blob", id: 1 },
+    });
+
+    expect(await ctx.blobs[0]?.text()).toEqual("hello");
+    expect(ctx.blobs[0]?.size).toEqual(data.blob1.size);
+    expect(ctx.blobs[0]?.type).toEqual(data.blob1.type);
+
+    expect(await ctx.blobs[1]?.text()).toEqual('"world"');
+    expect(ctx.blobs[1]?.size).toEqual(data.blob2.size);
+    expect(ctx.blobs[1]?.type).toEqual(data.blob2.type);
+  });
 });
