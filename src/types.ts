@@ -57,12 +57,10 @@ export type EncodeOptions<TType, TContext extends Context = Context> = {
   context: TContext;
 };
 
-export type EncodeResult<TJson extends JsonValue> = TJson extends Record<
-  string,
-  JsonValue
->
-  ? [TypeId, TJson] | [null, JsonValue]
-  : [null, JsonValue];
+export type EncodeResult<TJson extends JsonValue> =
+  TJson extends Record<string, JsonValue>
+    ? [TypeId, TJson] | [null, JsonValue]
+    : [null, JsonValue];
 
 export type Encoder<
   TType = unknown,

@@ -5,6 +5,7 @@ import packageJson from "./package.json" with { type: "json" };
 await build({
   entry: [`${import.meta.dirname}/src/index.ts`],
   outDir: `${import.meta.dirname}/dist`,
+  platform: "neutral",
   format: "esm",
   dts: true,
   clean: true,
