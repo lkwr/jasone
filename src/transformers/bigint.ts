@@ -9,7 +9,6 @@ export const bigIntTransformer: Transformer<bigint, { bigint: string }> = {
       { bigint: value.toString() },
     ],
   },
-
   decoder: {
     filter: TypeIdRegistry.BigInt,
     handler: ({ value }) => BigInt(value.bigint),

@@ -17,7 +17,6 @@ export const setTransformer: Transformer<
       },
     ],
   },
-
   decoder: {
     filter: TypeIdRegistry.Set,
     handler: ({ value, jasone }) =>

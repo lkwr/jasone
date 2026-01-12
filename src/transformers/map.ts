@@ -20,7 +20,6 @@ export const mapTransformer: Transformer<
       },
     ],
   },
-
   decoder: {
     filter: TypeIdRegistry.Map,
     handler: ({ value, jasone }) =>

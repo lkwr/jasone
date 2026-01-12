@@ -39,13 +39,13 @@ export type JasoneOptions = {
    * @example
    * ```ts
    * // your custom transformer WITH default type transformers
-   * const jasone = new Jasone({ types: [myCustomTransformer, ...defaultTransformers] });
+   * const jasone = new Jasone({ transformers: [myCustomTransformer, ...defaultTransformers] });
    *
    * // your custom transformer WITHOUT default type transformers
-   * const jasone = new Jasone({ types: [myCustomTransformer] });
+   * const jasone = new Jasone({ transformers: [myCustomTransformer] });
    * ```
    */
-  types?: Transformer<any, any, any>[];
+  transformers?: Transformer<any, any, any>[];
 };
 
 /**
@@ -97,7 +97,8 @@ export class Jasone {
   constructor(options: JasoneOptions = {}) {
     this.#typeIdentifier = options.typeIdentifier ?? "$";
 
-    for (const transformer of options.types ?? []) this.register(transformer);
+    for (const transformer of options.transformers ?? [])
+      this.register(transformer);
   }
 
   #registerEncoder<TType, TJson extends JsonValue>(
@@ -183,6 +184,7 @@ export class Jasone {
    * Encode an arbitrary value to a JSON-compatible Jasone encoded value.
    *
    * @param value The value to encode.
+   * @param context An optional arbitrary object that is passed to all encoders.
    * @returns A JSON-compatible Jasone encoded value.
    */
   encode(value: unknown, context: Context = {}): JsonValue {
@@ -254,6 +256,7 @@ export class Jasone {
    * Decode an Jasone encoded value to its decoded value.
    *
    * @param value The Jasone encoded value to decode.
+   * @param context An optional arbitrary object that is passed to all decoders.
    * @returns The decoded value.
    */
   decode<T = unknown>(value: JsonValue, context: Context = {}): T {
@@ -372,15 +375,15 @@ export class Jasone {
    * The default Jasone instance with the default types already registered.
    */
   static default = new Jasone({
-    types: defaultTransformers,
+    transformers: defaultTransformers,
   });
 
   /**
-   * Register a new type to the default Jasone instance.
+   * Register a new transformer to the default Jasone instance.
    *
-   * @param type The type to register.
+   * @param transformer The transformer to register.
    */
-  // static register = Jasone.default.register.bind(Jasone.default);
+  static register = Jasone.default.register.bind(Jasone.default);
 
   /**
    * Encode an arbitrary value to a JSON-compatible Jasone encoded value.
@@ -429,11 +432,4 @@ export class Jasone {
    * ```
    */
   static parse = Jasone.default.parse.bind(Jasone.default);
-
-  /**
-   * Register a new type to this Jasone instance.
-   *
-   * @param type The type to register.
-   */
-  static register = Jasone.default.register.bind(Jasone.default);
 }
