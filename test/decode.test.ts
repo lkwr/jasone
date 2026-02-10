@@ -140,7 +140,7 @@ describe("encode", () => {
   });
 
   test("with blobs using context", async () => {
-    const jasone = new Jasone({ types: [] });
+    const jasone = new Jasone({ transformers: [] });
 
     jasone.register<Blob, { id: number }, { blobs?: Blob[] }>({
       decoder: {

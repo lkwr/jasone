@@ -5,7 +5,7 @@ import {
   UnhandledValueError,
   UnknownTypeIdError,
 } from "./error.ts";
-import { defaultTransformers } from "./transformers/index.ts";
+import { builtInTransformers } from "./transformers/index.ts";
 import {
   type ClassLike,
   type Context,
@@ -31,17 +31,17 @@ export type JasoneOptions = {
   typeIdentifier?: string;
 
   /**
-   * The type transformers that are used to transform types.
+   * The type transformers that are used to encode and decode types.
    *
-   * If not provided, the default transformers are used. By providing your own transformers,
-   * the default transformers are not used anymore, so be sure to also include them if needed.
+   * If not provided, no transformers are used. So if you want to use the built-in transformers,
+   * you need to include them in the transformers array.
    *
    * @example
    * ```ts
-   * // your custom transformer WITH default type transformers
-   * const jasone = new Jasone({ transformers: [myCustomTransformer, ...defaultTransformers] });
+   * // your custom transformer WITH built-in type transformers
+   * const jasone = new Jasone({ transformers: [myCustomTransformer, ...builtInTransformers] });
    *
-   * // your custom transformer WITHOUT default type transformers
+   * // your custom transformer WITHOUT built-in type transformers
    * const jasone = new Jasone({ transformers: [myCustomTransformer] });
    * ```
    */
@@ -61,17 +61,18 @@ export type JasoneOptions = {
  * ```
  *
  * If you want to use your own types, you can either register them on any
- * instance (even on `Jasone.default`) or instantiate your own Jasone instance.
+ * instance (even on `Jasone.default`) or instantiate your own Jasone instance
+ * and provide your custom transformers in the constructor.
  *
  * ```ts
- * // use our own types without the default types (Date, BigInt, Map, etc.)
+ * // use your own transformer without the built-in transformers (Date, BigInt, Map, etc.)
  * const myInstance = new Jasone({
- *   types: [myCustomTransformer]
+ *   transformers: [myCustomTransformer]
  * });
  *
- * // or use our own types with the default types (recommend)
+ * // or use your own transformer with the built-in transformers (recommend)
  * const myInstance = new Jasone({
- *   types: [myCustomTransformer, ...defaultTransformers],
+ *   transformers: [myCustomTransformer, ...builtInTransformers],
  * });
  *
  * const encoded = myInstance.encode(value);
@@ -101,9 +102,23 @@ export class Jasone {
       this.register(transformer);
   }
 
-  #registerEncoder<TType, TJson extends JsonValue>(
-    encoder: Encoder<TType, TJson>,
-  ) {
+  /**
+   * The type identifier that is used to determine if an object is a typed object.
+   */
+  get typeIdentifier() {
+    return this.#typeIdentifier;
+  }
+
+  /**
+   * Register a new encoder to this Jasone instance.
+   *
+   * @param encoder The encoder to register.
+   */
+  registerEncoder<
+    TType,
+    TJson extends JsonValue,
+    TContext extends Context = Context,
+  >(encoder: Encoder<TType, TJson, TContext>): void {
     const filters = encoder.filter
       ? Array.isArray(encoder.filter)
         ? encoder.filter
@@ -141,9 +156,16 @@ export class Jasone {
     }
   }
 
-  #registerDecoder<TType, TJson extends Record<string, JsonValue>>(
-    decoder: Decoder<TType, TJson>,
-  ) {
+  /**
+   * Register a new decoder to this Jasone instance.
+   *
+   * @param decoder The decoder to register.
+   */
+  registerDecoder<
+    TType,
+    TJson extends Record<string, JsonValue>,
+    TContext extends Context = Context,
+  >(decoder: Decoder<TType, TJson, TContext>): void {
     const filters = decoder.filter
       ? Array.isArray(decoder.filter)
         ? decoder.filter
@@ -167,17 +189,17 @@ export class Jasone {
   }
 
   /**
-   * Register a new type to this Jasone instance.
+   * Register a new transformer (decoder and encoder) to this Jasone instance.
    *
-   * @param type The type to register.
+   * @param transformer The transformer to register.
    */
   register<TType, TJson extends JsonValue, TContext extends Context = Context>(
     transformer: Transformer<TType, TJson, TContext>,
-  ) {
+  ): void {
     if (transformer.encoder)
-      this.#registerEncoder(transformer.encoder as Encoder);
+      this.registerEncoder(transformer.encoder as Encoder);
     if (transformer.decoder)
-      this.#registerDecoder(transformer.decoder as Decoder);
+      this.registerDecoder(transformer.decoder as Decoder);
   }
 
   /**
@@ -328,21 +350,21 @@ export class Jasone {
   }
 
   /**
-   * Alias for `encode`.
+   * Alias for {@link Jasone.prototype.encode}.
    */
   serialize(value: unknown, context: Context = {}): JsonValue {
     return this.encode(value, context);
   }
 
   /**
-   * Alias for `decode`.
+   * Alias for {@link Jasone.prototype.decode}.
    */
   deserialize<T = unknown>(value: JsonValue, context: Context = {}): T {
     return this.decode<T>(value, context);
   }
 
   /**
-   * A wrapper around `JSON.stringify` that encodes a value and stringifies it.
+   * A wrapper around {@link JSON.stringify} that encodes a value and stringifies it.
    *
    * Under the hood, this functions looks like this:
    *
@@ -355,7 +377,7 @@ export class Jasone {
   }
 
   /**
-   * A wrapper around `JSON.parse` that parses a Jasone encoded value and decodes it.
+   * A wrapper around {@link JSON.parse} that parses a Jasone encoded value and decodes it.
    *
    * Under the hood, this functions looks like this:
    *
@@ -375,61 +397,25 @@ export class Jasone {
    * The default Jasone instance with the default types already registered.
    */
   static default = new Jasone({
-    transformers: defaultTransformers,
+    transformers: builtInTransformers,
   });
-
-  /**
-   * Register a new transformer to the default Jasone instance.
-   *
-   * @param transformer The transformer to register.
-   */
+  static registerEncoder = Jasone.default.registerEncoder.bind(Jasone.default);
+  static registerDecoder = Jasone.default.registerDecoder.bind(Jasone.default);
   static register = Jasone.default.register.bind(Jasone.default);
-
-  /**
-   * Encode an arbitrary value to a JSON-compatible Jasone encoded value.
-   *
-   * @param value The value to encode.
-   * @returns A JSON-compatible Jasone encoded value.
-   */
   static encode = Jasone.default.encode.bind(Jasone.default);
-
-  /**
-   * Alias for `encode`.
-   */
   static serialize = Jasone.default.serialize.bind(Jasone.default);
-
-  /**
-   * Decode an Jasone encoded value to its decoded value.
-   *
-   * @param value The Jasone encoded value to decode.
-   * @returns The decoded value.
-   */
   static decode = Jasone.default.decode.bind(Jasone.default);
-
-  /**
-   * Alias for `decode`.
-   */
   static deserialize = Jasone.default.deserialize.bind(Jasone.default);
-
-  /**
-   * A wrapper around `JSON.stringify` that encodes a value and stringifies it.
-   *
-   * Under the hood, this functions looks like this:
-   *
-   * ```ts
-   * JSON.stringify(Jasone.encode(value));
-   * ```
-   */
   static stringify = Jasone.default.stringify.bind(Jasone.default);
-
-  /**
-   * A wrapper around `JSON.parse` that parses a Jasone encoded value and decodes it.
-   *
-   * Under the hood, this functions looks like this:
-   *
-   * ```ts
-   * Jasone.decode(JSON.parse(value));
-   * ```
-   */
   static parse = Jasone.default.parse.bind(Jasone.default);
 }
+
+export const registerEncoder = Jasone.registerEncoder;
+export const registerDecoder = Jasone.registerDecoder;
+export const register = Jasone.register;
+export const encode = Jasone.encode;
+export const serialize = Jasone.serialize;
+export const decode = Jasone.decode;
+export const deserialize = Jasone.deserialize;
+export const stringify = Jasone.stringify;
+export const parse = Jasone.parse;

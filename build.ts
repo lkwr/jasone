@@ -1,5 +1,4 @@
 import { build } from "tsdown";
-
 import packageJson from "./package.json" with { type: "json" };
 
 await build({

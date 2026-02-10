@@ -34,7 +34,7 @@ export type NonJsonType = {
   undefined: undefined;
 };
 
-export type Context = Record<string, unknown>;
+export type Context = Record<PropertyKey, unknown>;
 
 export type EncodeFilter<TType, TContext extends Context = Context> = {
   class?: ClassLike<TType>;

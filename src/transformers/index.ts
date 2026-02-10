@@ -25,9 +25,9 @@ export type {
 };
 
 /**
- * The default type transformers that are used by the default Jasone instance.
+ * The built-in type transformers that are used by the default Jasone instance.
  */
-export const defaultTransformers: Transformer[] = [
+export const builtInTransformers: Transformer[] = [
   undefinedTransformer,
   dateTransformer,
   bigIntTransformer,
