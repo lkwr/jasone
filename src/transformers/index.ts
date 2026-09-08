@@ -7,6 +7,17 @@ import { regExpTransformer } from "./regexp.ts";
 import { setTransformer } from "./set.ts";
 import { mapTransformer } from "./map.ts";
 import { urlTransformer } from "./url.ts";
+import {
+  temporalInstantTransformer,
+  temporalZonedDateTimeTransformer,
+  temporalPlainDateTransformer,
+  temporalPlainTimeTransformer,
+  temporalPlainDateTimeTransformer,
+  temporalDurationTransformer,
+  temporalPlainYearMonthTransformer,
+  temporalPlainMonthDayTransformer,
+  temporalTransformers,
+} from "./temporal.ts";
 
 export {
   // TypeId: 0 (undefined)
@@ -23,6 +34,23 @@ export {
   mapTransformer,
   // TypeId: 6 (URL)
   urlTransformer,
+  // TypeId: 7 (Temporal.Instant)
+  temporalInstantTransformer,
+  // TypeId: 10 (Temporal.ZonedDateTime)
+  temporalZonedDateTimeTransformer,
+  // TypeId: 11 (Temporal.PlainDate)
+  temporalPlainDateTransformer,
+  // TypeId: 12 (Temporal.PlainTime)
+  temporalPlainTimeTransformer,
+  // TypeId: 13 (Temporal.PlainDateTime)
+  temporalPlainDateTimeTransformer,
+  // TypeId: 14 (Temporal.Duration)
+  temporalDurationTransformer,
+  // TypeId: 15 (Temporal.PlainYearMonth)
+  temporalPlainYearMonthTransformer,
+  // TypeId: 16 (Temporal.PlainMonthDay)
+  temporalPlainMonthDayTransformer,
+  temporalTransformers,
 };
 
 /**
@@ -36,4 +64,5 @@ export const builtInTransformers: Transformer[] = [
   setTransformer,
   mapTransformer,
   urlTransformer,
+  ...temporalTransformers,
 ] as Transformer[];
