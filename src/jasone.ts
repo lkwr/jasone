@@ -5,7 +5,6 @@ import {
   UnhandledValueError,
   UnknownTypeIdError,
 } from "./error.ts";
-import { builtInTransformers } from "./transformers/index.ts";
 import {
   type ClassLike,
   type Context,
@@ -32,52 +31,15 @@ export type JasoneOptions = {
 
   /**
    * The type transformers that are used to encode and decode types.
-   *
-   * If not provided, no transformers are used. So if you want to use the built-in transformers,
-   * you need to include them in the transformers array.
-   *
-   * @example
-   * ```ts
-   * // your custom transformer WITH built-in type transformers
-   * const jasone = new Jasone({ transformers: [myCustomTransformer, ...builtInTransformers] });
-   *
-   * // your custom transformer WITHOUT built-in type transformers
-   * const jasone = new Jasone({ transformers: [myCustomTransformer] });
-   * ```
    */
   transformers?: Transformer<any, any, any>[];
 };
 
 /**
- * Jasone is a JSON encoder and decoder that can handle custom types.
+ * The core jasone class without any built-in transformers or default instance.
  *
- * It exposes the default Jasone instance as `Jasone.default` and also
- * registers the methods as static methods on the class itself, so you
- * can easily use them without having to create an instance.
- *
- * ```ts
- * const encoded = Jasone.encode(value);
- * const decoded = Jasone.decode(value);
- * ```
- *
- * If you want to use your own types, you can either register them on any
- * instance (even on `Jasone.default`) or instantiate your own Jasone instance
- * and provide your custom transformers in the constructor.
- *
- * ```ts
- * // use your own transformer without the built-in transformers (Date, BigInt, Map, etc.)
- * const myInstance = new Jasone({
- *   transformers: [myCustomTransformer]
- * });
- *
- * // or use your own transformer with the built-in transformers (recommend)
- * const myInstance = new Jasone({
- *   transformers: [myCustomTransformer, ...builtInTransformers],
- * });
- *
- * const encoded = myInstance.encode(value);
- * const decoded = myInstance.decode(value);
- * ```
+ * Use this for smaller bundle size or if you want to bring your own custom
+ * transformers without built-in ones.
  */
 export class Jasone {
   #typeIdentifier: string;
@@ -388,34 +350,4 @@ export class Jasone {
   parse<T = unknown>(value: string, context: Context = {}): T {
     return this.decode<T>(JSON.parse(value), context);
   }
-
-  // -----------------------------------------------------------------------------
-  // -                      Static Methods for convenience                       -
-  // -----------------------------------------------------------------------------
-
-  /**
-   * The default Jasone instance with the default types already registered.
-   */
-  static default = new Jasone({
-    transformers: builtInTransformers,
-  });
-  static registerEncoder = Jasone.default.registerEncoder.bind(Jasone.default);
-  static registerDecoder = Jasone.default.registerDecoder.bind(Jasone.default);
-  static register = Jasone.default.register.bind(Jasone.default);
-  static encode = Jasone.default.encode.bind(Jasone.default);
-  static serialize = Jasone.default.serialize.bind(Jasone.default);
-  static decode = Jasone.default.decode.bind(Jasone.default);
-  static deserialize = Jasone.default.deserialize.bind(Jasone.default);
-  static stringify = Jasone.default.stringify.bind(Jasone.default);
-  static parse = Jasone.default.parse.bind(Jasone.default);
 }
-
-export const registerEncoder = Jasone.registerEncoder;
-export const registerDecoder = Jasone.registerDecoder;
-export const register = Jasone.register;
-export const encode = Jasone.encode;
-export const serialize = Jasone.serialize;
-export const decode = Jasone.decode;
-export const deserialize = Jasone.deserialize;
-export const stringify = Jasone.stringify;
-export const parse = Jasone.parse;

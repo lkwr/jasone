@@ -56,7 +56,7 @@ console.log(decoded); // { myDate: new Date("2025-04-05T12:30:00.000Z") }
 Adding custom types is easy. You just need to create a transformer object and register it with Jasone.
 
 ```ts
-import { builtInTransformers, Jasone, type Transformer } from "jasone";
+import { Jasone, type Transformer } from "jasone";
 
 class Car {
   constructor(
@@ -92,11 +92,14 @@ const carType: Transformer<Car, { brand: string; model: string }> = {
 Jasone.register(carType);
 
 // Or create a new Jasone instance with the transformer already registered
-// Note: Built-in transformers are NOT included by default, only the default Jasone instance has the built-in transformers registered.
+// Note: The built-in transformers are always included and are registered after your custom transformers.
 new Jasone({ transformers: [carType] });
 
-// So if you want to use the built-in transformers, you need to include them in the transformers array.
-new Jasone({ transformers: [carType, ...builtInTransformers] });
+// If you don't want the built-in transformers (e.g. for a smaller bundle size),
+// use the lightweight core instead.
+import { Jasone } from "jasone/core";
+
+new Jasone({ transformers: [carType] });
 ```
 
 ## Comparison with SuperJSON

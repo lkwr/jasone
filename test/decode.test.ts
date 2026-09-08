@@ -1,7 +1,8 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
+import { builtInTransformers } from "../src/index.ts";
 import { Jasone } from "../src/jasone.ts";
 
-describe("encode", () => {
+describe("decode", () => {
   test("primitives", () => {
     const jasone = new Jasone();
 
@@ -80,14 +81,15 @@ describe("encode", () => {
         { $: 0 },
       ]),
     ).toEqual([1, new Date("1970-01-01T00:00:00.000Z"), "2", undefined]);
-    expect(() =>
-      jasone.decode<unknown>({ $: 123, error: true }),
-    ).toThrowError();
+
+    expect(() => jasone.decode<unknown>({ $: 123, error: true })).toThrow();
   });
 
   test("with default types", () => {
+    const jasone = new Jasone({ transformers: builtInTransformers });
+
     expect(
-      Jasone.decode<unknown>([
+      jasone.decode<unknown>([
         {
           num: 1,
           undefined: { $: 0 },
@@ -140,8 +142,7 @@ describe("encode", () => {
   });
 
   test("with blobs using context", async () => {
-    const jasone = new Jasone({ transformers: [] });
-
+    const jasone = new Jasone();
     jasone.register<Blob, { id: number }, { blobs?: Blob[] }>({
       decoder: {
         filter: "Blob",

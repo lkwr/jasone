@@ -1,8 +1,13 @@
+import { copyFile, writeFile } from "node:fs/promises";
 import { build } from "tsdown";
 import packageJson from "./package.json" with { type: "json" };
 
 await build({
-  entry: [`${import.meta.dirname}/src/index.ts`],
+  entry: [
+    `${import.meta.dirname}/src/index.ts`,
+    `${import.meta.dirname}/src/core.ts`,
+    `${import.meta.dirname}/src/transformers/*.ts`,
+  ],
   outDir: `${import.meta.dirname}/dist`,
   platform: "neutral",
   format: "esm",
@@ -22,10 +27,11 @@ const distPackageJson = {
   types: "./index.d.ts",
 
   exports: {
-    ".": {
-      types: "./index.d.ts",
-      default: "./index.js",
-    },
+    ".": "./index.js",
+    "./core": "./core.js",
+    "./transformers": "./transformers/index.js",
+    "./transformers/*": "./transformers/*.js",
+    "./package.json": "./package.json",
   },
 
   repository: packageJson.repository,
@@ -35,13 +41,16 @@ const distPackageJson = {
 };
 
 await Promise.all([
-  Bun.file(`${import.meta.dirname}/dist/package.json`).write(
+  writeFile(
+    `${import.meta.dirname}/dist/package.json`,
     JSON.stringify(distPackageJson, null, 2),
   ),
-  Bun.file(`${import.meta.dirname}/dist/README.md`).write(
-    Bun.file(`${import.meta.dirname}/README.md`),
+  copyFile(
+    `${import.meta.dirname}/README.md`,
+    `${import.meta.dirname}/dist/README.md`,
   ),
-  Bun.file(`${import.meta.dirname}/dist/LICENSE.md`).write(
-    Bun.file(`${import.meta.dirname}/LICENSE.md`),
+  copyFile(
+    `${import.meta.dirname}/LICENSE.md`,
+    `${import.meta.dirname}/dist/LICENSE.md`,
   ),
 ]);

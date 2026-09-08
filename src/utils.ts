@@ -1,4 +1,4 @@
-import type { Jasone } from "./jasone.ts";
+import type { Jasone } from "./core.ts";
 import {
   type Decoder,
   type EncodeOptions,

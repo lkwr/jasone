@@ -1,4 +1,4 @@
-import { expect } from "bun:test";
+import { expect } from "vitest";
 import type { Jasone } from "../../src/jasone.ts";
 
 export const expectEncodeDecode = (jasone: Jasone, value: unknown) => {

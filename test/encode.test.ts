@@ -1,4 +1,5 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
+import { builtInTransformers } from "../src/index.ts";
 import { Jasone } from "../src/jasone.ts";
 
 describe("encode", () => {
@@ -75,12 +76,14 @@ describe("encode", () => {
       "2",
       { $: 0 },
     ]);
-    expect(() => jasone.encode(new Map())).toThrowError();
+    expect(() => jasone.encode(new Map())).toThrow();
   });
 
   test("with default types", () => {
+    const jasone = new Jasone({ transformers: builtInTransformers });
+
     expect(
-      Jasone.encode([
+      jasone.encode([
         {
           num: 1,
           undefined: undefined,
@@ -133,7 +136,7 @@ describe("encode", () => {
   });
 
   test("with blobs using context", async () => {
-    const jasone = new Jasone({ transformers: [] });
+    const jasone = new Jasone();
 
     jasone.register<Blob, { id: number }, { blobs?: Blob[] }>({
       encoder: {

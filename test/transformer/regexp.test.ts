@@ -1,4 +1,4 @@
-import { test } from "bun:test";
+import { test } from "vitest";
 import { Jasone } from "../../src/jasone.ts";
 import { regExpTransformer } from "../../src/transformers/regexp.ts";
 import { expectEncodeDecode } from "./util.ts";

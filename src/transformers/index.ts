@@ -1,13 +1,14 @@
+// biome-ignore-all assist/source/organizeImports: already sorted by type id
 import type { Transformer } from "../types.ts";
-import { bigIntTransformer } from "./bigint.ts";
+import { undefinedTransformer } from "./undefined.ts";
 import { dateTransformer } from "./date.ts";
-import { mapTransformer } from "./map.ts";
+import { bigIntTransformer } from "./bigint.ts";
 import { regExpTransformer } from "./regexp.ts";
 import { setTransformer } from "./set.ts";
-import { undefinedTransformer } from "./undefined.ts";
+import { mapTransformer } from "./map.ts";
 import { urlTransformer } from "./url.ts";
 
-export type {
+export {
   // TypeId: 0 (undefined)
   undefinedTransformer,
   // TypeId: 1 (Date)

@@ -5,6 +5,7 @@
     "module": "NodeNext",
     "lib": ["ESNext"],
     "moduleDetection": "force",
+    "types": ["node"],
 
     // Bundler mode
     "moduleResolution": "nodenext",

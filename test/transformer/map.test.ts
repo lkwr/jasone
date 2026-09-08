@@ -1,4 +1,4 @@
-import { test } from "bun:test";
+import { test } from "vitest";
 import { Jasone } from "../../src/jasone.ts";
 import { mapTransformer } from "../../src/transformers/map.ts";
 import { expectEncodeDecode } from "./util.ts";
