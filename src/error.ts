@@ -31,6 +31,15 @@ export class UnhandledValueError extends JasoneError {
   }
 }
 
+export class TemporalNotSupportedError extends JasoneError {
+  constructor(typeName: string) {
+    super(
+      `Temporal.${typeName} requires Temporal support, which is not available in this runtime. Use a runtime with Temporal support or load a Temporal polyfill.`,
+      { cause: typeName },
+    );
+  }
+}
+
 export class DuplicatedTypeIdError extends JasoneError {
   constructor(typeId: TypeId, decoder: Decoder) {
     super(

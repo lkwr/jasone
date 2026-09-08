@@ -102,6 +102,46 @@ import { Jasone } from "jasone/core";
 new Jasone({ transformers: [carType] });
 ```
 
+## Built-in Types
+
+The default `Jasone` export ships with transformers for the following types:
+
+| Type                      | Encoded as                                                  |
+| ------------------------- | ----------------------------------------------------------- |
+| `undefined`               | `{"$":0}`                                                   |
+| `Date`                    | `{"$":1,"iso":"1970-01-01T00:00:00.000Z"}`                  |
+| `BigInt`                  | `{"$":2,"bigint":"1000"}`                                   |
+| `RegExp`                  | `{"$":3,"source":"[a-z]+","flags":"gi"}`                    |
+| `Set`                     | `{"$":4,"values":[1]}`                                      |
+| `Map`                     | `{"$":5,"entries":[[1,2]]}`                                 |
+| `URL`                     | `{"$":6,"url":"https://example.com/"}`                      |
+| `Temporal.Instant`        | `{"$":7,"iso":"2025-04-05T12:30:00Z"}`                      |
+| `Temporal.ZonedDateTime`  | `{"$":10,"iso":"2025-04-05T14:30:00+02:00[Europe/Berlin]"}` |
+| `Temporal.PlainDate`      | `{"$":11,"iso":"2025-04-05"}`                               |
+| `Temporal.PlainTime`      | `{"$":12,"iso":"14:30:00"}`                                 |
+| `Temporal.PlainDateTime`  | `{"$":13,"iso":"2025-04-05T14:30:00"}`                      |
+| `Temporal.Duration`       | `{"$":14,"iso":"P1DT2H30M"}`                                |
+| `Temporal.PlainYearMonth` | `{"$":15,"iso":"2025-04"}`                                  |
+| `Temporal.PlainMonthDay`  | `{"$":16,"iso":"04-05"}`                                    |
+
+### Temporal Runtime Support
+
+The `Temporal.*` transformers work out of the box on runtimes that implement
+the [Temporal proposal](https://github.com/tc39/proposal-temporal) or have a
+Temporal polyfill loaded.
+
+On runtimes without Temporal support, Jasone keeps working for all other
+types:
+
+- Encoding Temporal values is impossible, as the runtime cannot create them.
+- Decoding a payload that contains Temporal values fails with a descriptive
+  error explaining that Temporal is not supported.
+
+To add Temporal support to a runtime without it, load the
+[temporal-polyfill](https://npmx.dev/package/temporal-polyfill).
+Ideally before importing Jasone, so the faster class-based encoders can be
+used, but loading it afterwards works as well.
+
 ## Comparison with SuperJSON
 
 Jasone provides fewer features than SuperJSON, but is more performant, has a smaller footprint, and uses a simpler and more readable JSON structure.

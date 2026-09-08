@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import { UnhandledValueError } from "../src/error.ts";
 import { builtInTransformers } from "../src/index.ts";
 import { Jasone } from "../src/jasone.ts";
 
@@ -133,6 +134,14 @@ describe("encode", () => {
         },
       },
     ]);
+  });
+
+  test("proto-less objects remain unhandled", () => {
+    const jasone = new Jasone({ transformers: builtInTransformers });
+
+    expect(() => jasone.encode(Object.create(null))).toThrow(
+      UnhandledValueError,
+    );
   });
 
   test("with blobs using context", async () => {

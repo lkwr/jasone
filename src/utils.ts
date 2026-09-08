@@ -26,6 +26,7 @@ export const matchEncoderFilters = (
     if (
       type === "object" &&
       value !== null &&
+      filter.class !== undefined &&
       filter.class === (value as object).constructor
     )
       return true;
