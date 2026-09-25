@@ -6,6 +6,7 @@ await build({
   entry: [
     `${import.meta.dirname}/src/index.ts`,
     `${import.meta.dirname}/src/core.ts`,
+    `${import.meta.dirname}/src/is.ts`,
     `${import.meta.dirname}/src/transformers/*.ts`,
   ],
   outDir: `${import.meta.dirname}/dist`,
@@ -29,6 +30,7 @@ const distPackageJson = {
   exports: {
     ".": "./index.js",
     "./core": "./core.js",
+    "./is": "./is.js",
     "./transformers": "./transformers/index.js",
     "./transformers/*": "./transformers/*.js",
     "./package.json": "./package.json",

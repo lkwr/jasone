@@ -8,14 +8,15 @@
     "build": "node ./build.ts",
     "check": "biome check",
     "format": "biome check --fix",
-    "test": "vitest run"
+    "test": "vitest run",
+    "bench": "vitest bench"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.12",
-    "@types/node": "^26.4.1",
+    "@biomejs/biome": "^2.5.14",
+    "@types/node": "^26.6.2",
     "tsdown": "^0.23.0",
     "typescript": "^6.0.3",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.1"
   },
   "repository": {
     "type": "git",
@@ -34,7 +35,7 @@
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": "26.8.1",
+      "version": "26.10.0",
       "onFail": "download"
     }
   }

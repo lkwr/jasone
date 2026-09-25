@@ -42,14 +42,14 @@ export type JasoneOptions = {
  * transformers without built-in ones.
  */
 export class Jasone {
-  #typeIdentifier: string;
+  private _typeIdentifier: string;
 
-  #anyDecoder: Decoder[] = [];
-  #typeIdDecoder: Map<TypeId, Decoder> = new Map();
+  private _anyDecoder: Decoder[] = [];
+  private _typeIdDecoder: Map<TypeId, Decoder> = new Map();
 
-  #anyEncoder: Encoder[] = [];
-  #classEncoder: Map<ClassLike<any>, Encoder[]> = new Map();
-  #customEncoder: Record<keyof NonJsonType, Encoder[]> = {
+  private _anyEncoder: Encoder[] = [];
+  private _classEncoder: Map<ClassLike<any>, Encoder[]> = new Map();
+  private _customEncoder: Record<keyof NonJsonType, Encoder[]> = {
     bigint: [],
     function: [],
     object: [],
@@ -58,7 +58,7 @@ export class Jasone {
   };
 
   constructor(options: JasoneOptions = {}) {
-    this.#typeIdentifier = options.typeIdentifier ?? "$";
+    this._typeIdentifier = options.typeIdentifier ?? "$";
 
     for (const transformer of options.transformers ?? [])
       this.register(transformer);
@@ -68,7 +68,7 @@ export class Jasone {
    * The type identifier that is used to determine if an object is a typed object.
    */
   get typeIdentifier() {
-    return this.#typeIdentifier;
+    return this._typeIdentifier;
   }
 
   /**
@@ -87,18 +87,18 @@ export class Jasone {
         : [encoder.filter]
       : [];
 
-    if (filters.length === 0) this.#anyEncoder.push(encoder as Encoder);
+    if (filters.length === 0) this._anyEncoder.push(encoder as Encoder);
 
     for (const filter of filters) {
       // any handler
-      if (filter.any) this.#anyEncoder.push(encoder as Encoder);
+      if (filter.any) this._anyEncoder.push(encoder as Encoder);
 
       // class constructor handler
       if (filter.class) {
-        let classList = this.#classEncoder.get(filter.class);
+        let classList = this._classEncoder.get(filter.class);
         if (!classList) {
           classList = [];
-          this.#classEncoder.set(filter.class, classList);
+          this._classEncoder.set(filter.class, classList);
         }
 
         classList.push(encoder as Encoder);
@@ -110,7 +110,7 @@ export class Jasone {
           nonJsonTypes.includes(field as keyof NonJsonType) &&
           filter[field as keyof NonJsonType]
         ) {
-          this.#customEncoder[field as keyof NonJsonType].push(
+          this._customEncoder[field as keyof NonJsonType].push(
             encoder as Encoder,
           );
         }
@@ -134,19 +134,19 @@ export class Jasone {
         : [decoder.filter]
       : [];
 
-    if (filters.length === 0) this.#anyDecoder.push(decoder as Decoder);
+    if (filters.length === 0) this._anyDecoder.push(decoder as Decoder);
 
     for (const filter of filters) {
       // any handler
       if (typeof filter === "function") {
-        this.#anyDecoder.push(decoder as Decoder);
+        this._anyDecoder.push(decoder as Decoder);
         continue;
       }
 
-      if (this.#typeIdDecoder.has(filter))
+      if (this._typeIdDecoder.has(filter))
         throw new DuplicatedTypeIdError(filter, decoder as Decoder);
 
-      this.#typeIdDecoder.set(filter, decoder as Decoder);
+      this._typeIdDecoder.set(filter, decoder as Decoder);
     }
   }
 
@@ -197,9 +197,9 @@ export class Jasone {
           );
 
           // in case a type identifier is present, we need to escape it
-          if (this.#typeIdentifier in encodedObject) {
-            encodedObject[this.#typeIdentifier] = [
-              encodedObject[this.#typeIdentifier] as JsonValue,
+          if (this._typeIdentifier in encodedObject) {
+            encodedObject[this._typeIdentifier] = [
+              encodedObject[this._typeIdentifier] as JsonValue,
             ];
           }
 
@@ -210,17 +210,17 @@ export class Jasone {
     let encoder: Encoder | undefined;
 
     if (type === "object")
-      encoder ??= this.#classEncoder
+      encoder ??= this._classEncoder
         .get((value as object).constructor as ClassLike<unknown>)
         ?.find((inner) =>
           matchEncoderFilters(inner.filter, value, this, context),
         );
 
-    encoder ??= this.#customEncoder[type].find((inner) =>
+    encoder ??= this._customEncoder[type].find((inner) =>
       matchEncoderFilters(inner.filter, value, this, context),
     );
 
-    encoder ??= this.#anyEncoder.find((inner) =>
+    encoder ??= this._anyEncoder.find((inner) =>
       matchEncoderFilters(inner.filter, value, this, context),
     );
 
@@ -228,12 +228,12 @@ export class Jasone {
 
     const [typeId, result] = encoder.handler({ value, jasone: this, context });
 
-    if (typeId !== null && this.#typeIdentifier in result)
+    if (typeId !== null && this._typeIdentifier in result)
       throw new IllegalEncoderResultError(result);
 
     return typeId === null
       ? result
-      : { [this.#typeIdentifier]: typeId, ...result };
+      : { [this._typeIdentifier]: typeId, ...result };
   }
 
   /**
@@ -267,27 +267,27 @@ export class Jasone {
 
         // typed objects
         if (
-          this.#typeIdentifier in value &&
+          this._typeIdentifier in value &&
           !Array.isArray(value) &&
           !ignoreTypeIdentifier
         ) {
-          const typeId = value[this.#typeIdentifier] as TypeId | [JsonValue];
+          const typeId = value[this._typeIdentifier] as TypeId | [JsonValue];
 
           // if the type identifier is an array, its an escaped object
           if (Array.isArray(typeId)) {
             const [escaped] = typeId;
             const cloned = { ...value };
 
-            cloned[this.#typeIdentifier] = escaped;
+            cloned[this._typeIdentifier] = escaped;
 
             return this.#decode(cloned, context, true);
           }
 
           let decoder: Decoder | undefined;
 
-          decoder ??= this.#typeIdDecoder.get(typeId);
+          decoder ??= this._typeIdDecoder.get(typeId);
 
-          decoder ??= this.#anyDecoder.find((entry) =>
+          decoder ??= this._anyDecoder.find((entry) =>
             matchDecoderFilters(entry.filter, value, typeId, this, context),
           );
 
